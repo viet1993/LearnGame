@@ -53,6 +53,11 @@ function update(time, delta) {
 
 function flap () {
   bird.body.velocity.y = -flapVelocity;
+  bird = this.physics.add.sprite(config.width * 0.1, config.height / 2, 'bird').setOrigin(0)
+
+  bird.body.gravity.y = 200
+  //debugger
 }
+
 
 new Phaser.Game(config);
