@@ -3,7 +3,7 @@ import Phaser from "phaser";
 
 const config = {
   type: Phaser.AUTO,
-  width: 800,
+  width: 2800,
   height: 600,
   physics: {
     default: 'arcade',
@@ -19,14 +19,15 @@ const config = {
 };
 
 const VELOCITY = 200;
+const PIPES_TO_RENDER = 4;
 
 let bird = null;
 let upperPipe = null;
 let lowerPipe = null;
 
 const pipeVertaicalDistanceRange = [150, 250];
-let pipeVerticalDistance = Phaser.Math.Between(pipeVertaicalDistanceRange[0], pipeVertaicalDistanceRange[1]);
-let pipeVerticalPosition = Phaser.Math.Between(50, config.height - 50 - pipeVerticalDistance);
+let pipeHorizontalDistance = 250;
+let pipeVertaicalDistance = Phaser.Math.Between(pipeVertaicalDistanceRange[0], pipeVertaicalDistanceRange[1]);
 
 let flapVelocity = 250;
 const initialBirdPosition = { x: config.width * 0.1, y: config.height / 2}
@@ -38,16 +39,20 @@ function preload () {
 }
 
 function create () {
-  // trục x, trục y, key value of image
+  // trục x, trục y, key value  of image
   this.add.image(0, 0, 'sky').setOrigin(0);
   // middle of the height , 1/10 width
   // gắn vị trí ban đầu cho con chym
   bird = this.physics.add.sprite(initialBirdPosition.x, initialBirdPosition.y, 'bird').setOrigin(0);
   bird.body.gravity.y = 400;
-  
-  //gắn vị trí ông nước trên phia đầu
-  upperPipe = this.physics.add.sprite(400, pipeVerticalPosition, 'pipe').setOrigin(0, 1);
-  lowerPipe = this.physics.add.sprite(400, upperPipe.y  + pipeVerticalDistance, 'pipe').setOrigin(0, 0);
+
+  for (let i = 0; i < PIPES_TO_RENDER; i++) {
+    // gắn vị trí ông nước ban đầu
+    upperPipe = this.physics.add.sprite(0, 0, 'pipe').setOrigin(0, 1);
+    lowerPipe = this.physics.add.sprite(0, 0, 'pipe').setOrigin(0, 0);
+
+    placePipe(upperPipe, lowerPipe);
+  }
   
   this.input.on('pointerdown',flap);
   this.input.keyboard.on('keydown_SPACE', flap);
@@ -61,9 +66,26 @@ function update(time, delta) {
   }
 }
 
-function restartBirdPosition() {
+function restartBirdPosition () {
   bird.x = initialBirdPosition.x;
   bird.y = initialBirdPosition.y;
+}
+
+function placePipe (uPipe, lPipe) {
+  pipeHorizontalDistance += 400;
+  let pipeVerticalDistance = Phaser.Math.Between(...pipeVertaicalDistanceRange);
+  let pipeVerticalPosition = Phaser.Math.Between(50, config.height - 50 - pipeVerticalDistance);
+  
+  // gắn vị trí ông nước trên phia đầu
+  uPipe.x = pipeHorizontalDistance;
+  uPipe.y = pipeVerticalDistance;
+
+  lPipe.x = uPipe.x;
+  lPipe.y =  uPipe.y + pipeVerticalDistance;
+  
+  // vận tốc ống nước
+  uPipe.body.velocity.x = -200;
+  lPipe.body.velocity.x = -200;
 }
 
 function flap () {
