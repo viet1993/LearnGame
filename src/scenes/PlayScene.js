@@ -14,7 +14,10 @@ class PlayScene extends Phaser.Scene {
         this.pipeHorizontalDistance = 0;
         this.pipeVertaicalDistanceRange = [150, 250];
         this.pipeHorizonDistanceRange = [400, 450];
-        this.flapVelocity = 250;
+        this.flapVelocity = 300;
+
+        this.score = 0;
+        this.scoreText = '';
     }
     
 
@@ -22,6 +25,7 @@ class PlayScene extends Phaser.Scene {
         this.load.image('sky', 'assets/sky.png');
         this.load.image('bird', 'assets/bird.png');
         this.load.image('pipe', 'assets/pipe.png');
+        this.load.image('pause', 'assets/pause.png');
     }
 
     create() {
@@ -29,6 +33,8 @@ class PlayScene extends Phaser.Scene {
         this.createBird(); 
         this.createPipes(); 
         this.createColliders();
+        this.createScore();
+        this.createPause();
         this.handleInput(); 
     }
     
@@ -46,7 +52,8 @@ class PlayScene extends Phaser.Scene {
         // middle of the height , 1/10 width
         // gắn vị trí ban đầu cho con chym
         this.bird = this.physics.add.sprite(this.config.startPosition.x, this.config.startPosition.y, 'bird').setOrigin(0);
-        this.bird.body.gravity.y = 400;
+        this.bird.body.gravity.y = 600;
+        this.bird.setCollideWorldBounds(true);
     }
 
     createPipes() {      
@@ -65,6 +72,19 @@ class PlayScene extends Phaser.Scene {
 
     createColliders() {
         this.physics.add.collider(this.bird, this.pipes, this.gameOver, null, this); 
+    }
+
+    createScore() {
+        this.score = 0;
+        const bestScore = localStorage.getItem('bestScore');
+        this.scoreText = this.add.text(16, 16, `Score: ${0}`, {fontSize:'32px', fill: '#000'});
+        this.add.text(16, 52, `Best score: ${bestScore || 0}`, {fontSize:`18px`, fill:`#000`});
+    }
+
+    createPause() {
+        this.add.image(this.config.width - 10, this.config.height - 10, 'pause')
+        .setScale(3)
+        .setOrigin(1);
     }
 
     handleInput() {
@@ -88,7 +108,7 @@ class PlayScene extends Phaser.Scene {
     }
 
     checkGameStatus() {
-        if (this.bird.y > this.config.height || this.bird.y < -this.bird.height ) {
+        if (this.bird.getBounds().bottom >= this.config.height || this.bird.y <= 0 ) {
             this.gameOver();
         }
     }
@@ -102,17 +122,34 @@ class PlayScene extends Phaser.Scene {
                 tempPipes.push(pipe);
                 if (tempPipes.length === 2) {
                     this.placePipe(...tempPipes);
+                    this.increaseScore();
+                    this.setBestScore();
                 }
             }
         })
     }
 
+    setBestScore() {
+        const bestScoreText = localStorage.getItem('bestScore');
+        const bestScore = bestScoreText && parseInt(bestScoreText, 10);
+
+        if(!bestScore || this.score > bestScore) {
+            localStorage.setItem('bestScore', this.score);
+        }
+    }
+
     gameOver() {
-        // this.bird.x = this.config.startPosition.x;
-        // this.bird.y = this.config.startPosition.y;
-        // this.bird.body.velocity.y = 0;
         this.physics.pause();
         this.bird.setTint(0xeb4034);
+        this.setBestScore();
+
+        this.time.addEvent({
+            delay:1000,
+            callback: ()=> {
+                this.scene.restart();
+            },
+            loop:false
+        })
     }
       
     // tính toán khoảng cách ngẫu nhiên của ống nước
@@ -129,6 +166,11 @@ class PlayScene extends Phaser.Scene {
     flap() {
         this.bird.body.velocity.y = -this.flapVelocity;
     }
+
+    increaseScore() {
+        this.score++;
+        this.scoreText.setText(`Score: ${this.score}`);
+    }
 }
 
-export default PlayScene
+export default PlayScene;
