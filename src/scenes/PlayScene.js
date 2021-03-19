@@ -19,14 +19,6 @@ class PlayScene extends Phaser.Scene {
         this.score = 0;
         this.scoreText = '';
     }
-    
-
-    preload() {
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('bird', 'assets/bird.png');
-        this.load.image('pipe', 'assets/pipe.png');
-        this.load.image('pause', 'assets/pause.png');
-    }
 
     create() {
         this.createBG(); 
@@ -35,6 +27,7 @@ class PlayScene extends Phaser.Scene {
         this.createColliders();
         this.createScore();
         this.createPause();
+        // this.createResume();
         this.handleInput(); 
     }
     
@@ -82,9 +75,28 @@ class PlayScene extends Phaser.Scene {
     }
 
     createPause() {
-        this.add.image(this.config.width - 10, this.config.height - 10, 'pause')
+        const pauseButton = this.add.image(this.config.width - 10, this.config.height - 10, 'pause')
+        .setInteractive()
         .setScale(3)
         .setOrigin(1);
+
+        pauseButton.on('pointerdown', () => {
+            this.physics.pause();
+            this.scene.pause();
+
+        });
+    }
+
+    createResume() {
+        const playButton = this.add.image(this.config.width - 10, this.config.height - 10, 'play')
+        .setInteractive()
+        .setScale(3)
+        .setOrigin(1);
+
+        playButton.on('pointerdown', () => {
+            this.physics.resume();
+            this.scene.resume();
+        });
     }
 
     handleInput() {
