@@ -16,7 +16,7 @@ const SHARED_CONFIG = {
 
 const Scenes = [PreloadScene, MenuScene, PlayScene];
 const createScene = Scene => new Scene(SHARED_CONFIG);
-const initScenes = () => Scenes.map((Scenes) => new Scenes(SHARED_CONFIG));
+const initScenes = () => Scenes.map(createScene);
 
 const config = {
   // WebGL ( Web graphics library ) JS API for rendering 2D and 3D graphics
