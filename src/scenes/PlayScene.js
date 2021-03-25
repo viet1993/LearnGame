@@ -5,8 +5,8 @@ const VELOCITY = 200;
 
 class PlayScene extends BaseScene {
     constructor(config) {
-        super('PlayScene', config);
-        this.config = config;
+        super('PlayScene', {...config, canGoBack: true});
+        // this.config = config;
 
         this.bird = null;
         this.pipes = null;
@@ -21,7 +21,9 @@ class PlayScene extends BaseScene {
     }
 
     create() {
+          // create BG
         super.create();
+
         this.createBird(); 
         this.createPipes(); 
         this.createColliders();
@@ -29,11 +31,38 @@ class PlayScene extends BaseScene {
         this.createPause();
         // this.createResume();
         this.handleInput(); 
+        this.createGoBack();
+        this.listenToEvents();
     }
     
     update() {
         this.checkGameStatus();    
         this.recyclePipes();
+    }
+
+    listenToEvents() {
+        if (this.pauseEvent) { return; }
+        this.pauseEvent = this.events.on('resume', () => {
+            this.initialTime = 3;
+            this.countDownText = this.add.text(...this.screenCenter, 'Fly in: ' + this.initialTime, this.fontOptions)
+            .setOrigin(0.5);
+            this.timedEvent = this.time.addEvent({
+                delay: 1000,
+                callback: this.countDown,
+                callbackScope: this,
+                loop: true
+            })
+        });
+    }
+
+    countDown() {
+        this.initialTime--;
+        this.countDownText.setText('Fly in: ' + this.initialTime);
+        if (this.initialTime <= 0) {
+            this.countDownText.setText('');
+            this.physics.resume();
+            this.timedEvent.remove();
+        }
     }
 
     createBird() {
@@ -78,7 +107,7 @@ class PlayScene extends BaseScene {
         pauseButton.on('pointerdown', () => {
             this.physics.pause();
             this.scene.pause();
-
+            this.scene.launch('PauseScene');
         });
     }
 
@@ -164,7 +193,7 @@ class PlayScene extends BaseScene {
         let rightMostX = 0;
 
         this.pipes.getChildren().forEach(pipe => {
-          rightMostX = Math.max(pipe.x, rightMostX);
+            rightMostX = Math.max(pipe.x, rightMostX);
         });
 
         return rightMostX;
