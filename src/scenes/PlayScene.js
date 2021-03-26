@@ -5,23 +5,43 @@ const VELOCITY = 200;
 
 class PlayScene extends BaseScene {
     constructor(config) {
-        super('PlayScene', {...config, canGoBack: true});
+        super('PlayScene', config);
         // this.config = config;
 
         this.bird = null;
         this.pipes = null;
 
         this.pipeHorizontalDistance = 0;
-        this.pipeVertaicalDistanceRange = [150, 250];
-        this.pipeHorizonDistanceRange = [400, 450];
+        // this.pipeVertaicalDistanceRange = [150, 250];
+        // this.pipeHorizonDistanceRange = [400, 450];
         this.flapVelocity = 300;
 
         this.score = 0;
         this.scoreText = '';
+        this.isPaused = false 
+        //this.currentDifficulty = 'easy';
+        this.difficulties = {
+            'easy': {
+                // khoảng cách 2 ông nước theo chiều dọc
+                pipeVertaicalDistanceRange: [150, 200],
+                // khoảng cách 2 ông nước theo chiều ngang
+                pipeHorizonDistanceRange: [300, 350]
+            },
+            'normal': {
+                pipeVertaicalDistanceRange: [140, 190],
+                pipeHorizonDistanceRange:  [280, 330]
+            },
+            'hard': {
+                pipeVertaicalDistanceRange: [120, 170],
+                pipeHorizonDistanceRange:  [250, 300]
+            }
+        }
     }
 
     create() {
           // create BG
+        this.currentDifficulty = this.config.difficulty;
+        alert(this.currentDifficulty)
         super.create();
 
         this.createBird(); 
@@ -29,7 +49,6 @@ class PlayScene extends BaseScene {
         this.createColliders();
         this.createScore();
         this.createPause();
-        // this.createResume();
         this.handleInput(); 
         this.createGoBack();
         this.listenToEvents();
@@ -59,6 +78,7 @@ class PlayScene extends BaseScene {
         this.initialTime--;
         this.countDownText.setText('Fly in: ' + this.initialTime);
         if (this.initialTime <= 0) {
+            this.isPaused = false;
             this.countDownText.setText('');
             this.physics.resume();
             this.timedEvent.remove();
@@ -99,27 +119,17 @@ class PlayScene extends BaseScene {
     }
 
     createPause() {
+        this.isPaused = false;
         const pauseButton = this.add.image(this.config.width - 10, this.config.height - 10, 'pause')
         .setInteractive()
         .setScale(3)
         .setOrigin(1);
 
         pauseButton.on('pointerdown', () => {
+            this.isPaused = true;
             this.physics.pause();
             this.scene.pause();
             this.scene.launch('PauseScene');
-        });
-    }
-
-    createResume() {
-        const playButton = this.add.image(this.config.width - 10, this.config.height - 10, 'play')
-        .setInteractive()
-        .setScale(3)
-        .setOrigin(1);
-
-        playButton.on('pointerdown', () => {
-            this.physics.resume();
-            this.scene.resume();
         });
     }
 
@@ -129,11 +139,12 @@ class PlayScene extends BaseScene {
     }
 
     placePipe(uPipe, lPipe) {
+        const difficulty = this.difficulties[this.currentDifficulty];
         const rightMostX = this.getRightMostPipe();
-        const pipeVerticalDistance = Phaser.Math.Between(...this.pipeVertaicalDistanceRange);
+        const pipeVerticalDistance = Phaser.Math.Between(...difficulty.pipeVertaicalDistanceRange);
         // 50 là chiều cao tối thiểu từ frame game đến mép thành ống nước
         const pipeVerticalPosition = Phaser.Math.Between(50, this.config.height - 50 - pipeVerticalDistance);
-        const pipeHorizontalDistance = Phaser.Math.Between(...this.pipeHorizonDistanceRange)
+        const pipeHorizontalDistance = Phaser.Math.Between(...difficulty.pipeHorizonDistanceRange)
       
         // gắn vị trí ông nước trên phia đầu
         uPipe.x = rightMostX + pipeHorizontalDistance;
@@ -160,9 +171,19 @@ class PlayScene extends BaseScene {
                     this.placePipe(...tempPipes);
                     this.increaseScore();
                     this.setBestScore();
+                    this.increaseDifficulty();
                 }
             }
         })
+    }
+
+    increaseDifficulty() {
+        if(this.score === 1) {
+            this.currentDifficulty = 'easy';
+        }
+        else if(this.score === 3) {
+            this.currentDifficulty = 'hard';
+        }
     }
 
     setBestScore() {
@@ -200,6 +221,7 @@ class PlayScene extends BaseScene {
     }
       
     flap() {
+        if(this.isPaused) { return; }
         this.bird.body.velocity.y = -this.flapVelocity;
     }
 

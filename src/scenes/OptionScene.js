@@ -1,17 +1,18 @@
 import BaseScene from './BaseScene';
 
-class MenuScene extends BaseScene{
+class OptionScene extends BaseScene{
     constructor(config) {
-        super('PauseScene', config);
-
+        super('OptionScene', config);
         this.menu = [
-            {scene: 'PlayScene', text: 'Continue'},
-            {scene: 'MenuScene', text: 'Exit'}
+            {scene: 'Easy', text: 'Easy'},
+            {scene: 'Normal', text: 'Normal'},
+            {scene: 'Hard', text: 'Hard'}
         ]
     }
 
     create() {
         super.create();
+        this.createGoBack();
         this.createMenu(this.menu, this.setUpMenuEvents.bind(this));
     }
 
@@ -28,19 +29,18 @@ class MenuScene extends BaseScene{
         });
 
         textGO.on('pointerup', () => {
-            if(menuItem.scene && menuItem.text === "Continue") {
-                // Shutting Playscreen, PauseScene and resume play screen
-               this.scene.stop();
-               this.scene.resume(menuItem.scene);
-               this.physics.resume();
+            if(menuItem.text === 'Easy') {
+                this.config.difficulty == 'easy';
+            }
+            else if (menuItem.text === 'Normal') {
+                this.config.difficulty == 'normal';
             }
             else {
-                // Shutting Playscreen, PauseScene and running Menu
-                this.scene.stop('PlayScene');
-                this.scene.start(menuItem.scene);
+                this.config.difficulty == 'hard';
             }
+            menuItem.scene && this.scene.start('PlayScene');
         });
     }
 }
 
-export default MenuScene;
+export default OptionScene;
