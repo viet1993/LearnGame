@@ -14,6 +14,10 @@ class MenuScene extends BaseScene{
 
     create() {
         super.create();
+
+        this.add.text(16, 16, `Difficult: ${this.config.difficulty}`, {fontSize:`16px`})
+        .setOrigin(0)
+
         //this.scene.start('PlayScene');
         this.createMenu(this.menu, this.setUpMenuEvents.bind(this));
     }

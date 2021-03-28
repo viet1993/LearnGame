@@ -30,15 +30,15 @@ class OptionScene extends BaseScene{
 
         textGO.on('pointerup', () => {
             if(menuItem.text === 'Easy') {
-                this.config.difficulty == 'easy';
+                this.config.difficulty = 'easy';
             }
             else if (menuItem.text === 'Normal') {
-                this.config.difficulty == 'normal';
+                this.config.difficulty = 'normal';
             }
             else {
-                this.config.difficulty == 'hard';
+                this.config.difficulty = 'hard';
             }
-            menuItem.scene && this.scene.start('PlayScene');
+            menuItem.scene && this.scene.start('MenuScene');
         });
     }
 }

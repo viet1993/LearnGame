@@ -26,10 +26,11 @@ const config = {
   // WebGL ( Web graphics library ) JS API for rendering 2D and 3D graphics
   type: Phaser.AUTO,
   ...SHARED_CONFIG,
+  pixelArt: true,
   physics: {
     default: 'arcade',
     arcade: {
-      debug: true
+      // debug: true
     }
   },
   scene: initScenes()

@@ -39,9 +39,8 @@ class PlayScene extends BaseScene {
     }
 
     create() {
-          // create BG
+        // create BG
         this.currentDifficulty = this.config.difficulty;
-        alert(this.currentDifficulty)
         super.create();
 
         this.createBird(); 
@@ -52,6 +51,18 @@ class PlayScene extends BaseScene {
         this.handleInput(); 
         this.createGoBack();
         this.listenToEvents();
+        this.addAudioScore();
+
+        this.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNumbers('bird', {start: 8, end:15}),
+            // 24 fps default, it will play animation consisiting of 24 frames in 1 seconds
+            // it means 2 second wll play 8 frame (8/4 = 2 second)
+            frameRate: 4,
+            // số lần lặp lại vòng lặp
+            repeat: -1
+        })
+        this.bird.play('fly');
     }
     
     update() {
@@ -88,9 +99,14 @@ class PlayScene extends BaseScene {
     createBird() {
         // middle of the height , 1/10 width
         // gắn vị trí ban đầu cho con chym
-        this.bird = this.physics.add.sprite(this.config.startPosition.x, this.config.startPosition.y, 'bird').setOrigin(0);
+        this.bird = this.physics.add.sprite(this.config.startPosition.x, this.config.startPosition.y, 'bird')
+        .setFlipX(true)
+        .setScale(3)     
+        .setOrigin(0);
         this.bird.body.gravity.y = 600;
         this.bird.setCollideWorldBounds(true);
+
+        this.bird.setBodySize(this.bird.width, this.bird.height - 7)
     }
 
     createPipes() {      
@@ -228,6 +244,12 @@ class PlayScene extends BaseScene {
     increaseScore() {
         this.score++;
         this.scoreText.setText(`Score: ${this.score}`);
+    }
+
+    addAudioScore() {
+        // fx = this.load.audio('sfx');
+        // fx.allowMultiple = true;
+        // fx.addMarker('alien death', 1, 1.0);
     }
 }
 
