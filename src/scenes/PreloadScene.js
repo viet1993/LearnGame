@@ -14,7 +14,12 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('pause', 'assets/pause.png');
         this.load.image('back', 'assets/back.png');
 
-        this.load.audio('sfx', 'assets/audio/SoundEffects/fx_mixdown.ogg');
+        this.load.audio('sfx', [
+            'assets/audio/fx_mixdown.ogg',
+            'assets/audio/fx_mixdown.mp3'
+        ], {
+            instances: 4
+        });
     }
 
     create() {

@@ -36,6 +36,17 @@ class PlayScene extends BaseScene {
                 pipeHorizonDistanceRange:  [250, 300]
             }
         }
+        this.markers = [
+            { name: 'alien death', start: 1, duration: 1.0, config: {} },
+            { name: 'boss hit', start: 3, duration: 0.5, config: {} },
+            { name: 'escape', start: 4, duration: 3.2, config: {} },
+            { name: 'meow', start: 8, duration: 0.5, config: {} },
+            { name: 'numkey', start: 9, duration: 0.1, config: {} },
+            { name: 'ping', start: 10, duration: 1.0, config: {} },
+            { name: 'death', start: 12, duration: 4.2, config: {} },
+            { name: 'shot', start: 17, duration: 1.0, config: {} },
+            { name: 'squit', start: 19, duration: 0.3, config: {} }
+        ];
     }
 
     create() {
@@ -51,7 +62,6 @@ class PlayScene extends BaseScene {
         this.handleInput(); 
         this.createGoBack();
         this.listenToEvents();
-        this.addAudioScore();
 
         this.anims.create({
             key: 'fly',
@@ -215,6 +225,7 @@ class PlayScene extends BaseScene {
         this.physics.pause();
         this.bird.setTint(0xeb4034);
         this.setBestScore();
+        this.addAudioShutDown();
 
         this.time.addEvent({
             delay:1000,
@@ -242,14 +253,21 @@ class PlayScene extends BaseScene {
     }
 
     increaseScore() {
-        this.score++;
+        this.score++;``
         this.scoreText.setText(`Score: ${this.score}`);
+        if(this.score > 0) {
+            this.addAudioScore();
+        }     
+    }
+    
+    addAudioScore() {
+        this.beamSound = this.sound.add("sfx");
+        this.sound.play('sfx', this.markers[5]);
     }
 
-    addAudioScore() {
-        // fx = this.load.audio('sfx');
-        // fx.allowMultiple = true;
-        // fx.addMarker('alien death', 1, 1.0);
+    addAudioShutDown() {
+        this.beamSound = this.sound.add("sfx");
+        this.sound.play('sfx', this.markers[0]);
     }
 }
 
